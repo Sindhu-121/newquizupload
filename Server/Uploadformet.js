@@ -12,7 +12,7 @@ const dbConfig = {
     host: 'localhost',
     user: 'root',
     password: '',
-    database: 'egquizdatabase',
+    database: 'egrad_quiz',
 };
 
 const connection = mysql.createConnection(dbConfig);
