@@ -11,7 +11,7 @@ const port = 4009;
 const dbConfig = {
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'naveen',
     database: 'egrad_quiz',
 };
 
