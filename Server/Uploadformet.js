@@ -127,17 +127,17 @@
 //         let j = 0;
 //         for (let i = 0; i < images.length; i++) {
 //          if(j==0){
-             
+
 //               const newRecord = {
 //                 "question_img": images[i],
 //                 "test_paper_id": req.body.test_id,
 //                 "subi_id":req.body.subi_id
-               
+
 //                 // Add more columns and values as needed
 //               };
-              
+
 //               const insertQuery = 'INSERT INTO questions SET ?';
-              
+
 //               // Execute the INSERT query
 //               connection.query(insertQuery, newRecord, (err, result) => {
 //                 if (err) {
@@ -148,7 +148,7 @@
 //                 }
 //               });
 //             j++;
-              
+
 //          }
 //          if(j>0 && j<5){
 //             const newRecord = {
@@ -156,9 +156,9 @@
 //                 "question_id": Question_id
 //                 // Add more columns and values as needed
 //               };
-              
+
 //               const insertQuery = 'INSERT INTO options SET ?';
-              
+
 //               // Execute the INSERT query
 //               connection.query(insertQuery, newRecord, (err, result) => {
 //                 if (err) {
@@ -173,9 +173,9 @@
 //                 "question_id": Question_id
 //                 // Add more columns and values as needed
 //               };
-              
+
 //               const insertQuery = 'INSERT INTO solution SET ?';
-              
+
 //               // Execute the INSERT query
 //               connection.query(insertQuery, newRecord, (err, result) => {
 //                 if (err) {
@@ -209,29 +209,29 @@ const app = express();
 const port = 4009;
 
 const dbConfig = {
-    host: 'localhost',
-    user: 'root',
-    password: 'naveen',
-    database: 'egrad_quiz',
+  host: 'localhost',
+  user: 'root',
+  password: 'naveen',
+  database: 'egrad_quiz',
 };
 
 const connection = mysql.createConnection(dbConfig);
 
 connection.connect((err) => {
-    if (err) {
-        console.error('Error connecting to the database: ' + err.message);
-        throw err;
-    }
-    console.log('Connected to the database');
+  if (err) {
+    console.error('Error connecting to the database: ' + err.message);
+    throw err;
+  }
+  console.log('Connected to the database');
 });
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.originalname);
-    },
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
 });
 
 const upload = multer({ storage });
@@ -241,12 +241,12 @@ app.use(cors());
 app.get('/quiz_coures', (req, res) => {
   const sql = 'SELECT * FROM 1egquiz_courses';
   connection.query(sql, (err, result) => {
-      if (err) {
-          console.error('Error querying the database: ' + err.message);
-          res.status(500).json({ error: 'Error fetching coureses' });
-          return;
-      }
-      res.json(result);
+    if (err) {
+      console.error('Error querying the database: ' + err.message);
+      res.status(500).json({ error: 'Error fetching coureses' });
+      return;
+    }
+    res.json(result);
   });
 });
 
@@ -254,12 +254,12 @@ app.get('/quiz_exams/:course_id', (req, res) => {
   const course_id = req.params.course_id;
   const sql = 'SELECT * FROM 2egquiz_exam WHERE course_id = ?';
   connection.query(sql, [course_id], (err, result) => {
-      if (err) {
-          console.error('Error querying the database: ' + err.message);
-          res.status(500).json({ error: 'Error fetching exams' });
-          return;
-      }
-      res.json(result);
+    if (err) {
+      console.error('Error querying the database: ' + err.message);
+      res.status(500).json({ error: 'Error fetching exams' });
+      return;
+    }
+    res.json(result);
   });
 });
 
@@ -267,12 +267,12 @@ app.get('/test_paper/:exam_id', (req, res) => {
   const exam_id = req.params.exam_id;
   const sql = 'SELECT * FROM test_paper WHERE exam_id = ?';
   connection.query(sql, [exam_id], (err, result) => {
-      if (err) {
-          console.error('Error querying the database: ' + err.message);
-          res.status(500).json({ error: 'Error fetching Test Papers' });
-          return;
-      }
-      res.json(result);
+    if (err) {
+      console.error('Error querying the database: ' + err.message);
+      res.status(500).json({ error: 'Error fetching Test Papers' });
+      return;
+    }
+    res.json(result);
   });
 });
 
@@ -281,15 +281,141 @@ app.get('/exam_subjects/:exam_id', (req, res) => {
   const exam_id = req.params.exam_id;
   const sql = 'SELECT i.subject_name,i.subi_id FROM exam_subjects e,egquiz_subindex i WHERE e.subi_id = i.subi_id AND exam_id=?';
   connection.query(sql, [exam_id], (err, result) => {
-      if (err) {
-          console.error('Error querying the database: ' + err.message);
-          res.status(500).json({ error: 'Error fetching Test Papers' });
-          return;
-      }
-      res.json(result);
+    if (err) {
+      console.error('Error querying the database: ' + err.message);
+      res.status(500).json({ error: 'Error fetching Test Papers' });
+      return;
+    }
+    res.json(result);
   });
 });
 
+
+// app.post('/upload', upload.single('document'), async (req, res) => {
+//   const docxFilePath = `uploads/${req.file.filename}`;
+//   const outputDir = `uploads/${req.file.originalname}_images`;
+//   // const test_id = req.body.test_id;
+
+//   if (!fs.existsSync(outputDir)) {
+//     fs.mkdirSync(outputDir);
+//   }
+
+//   try {
+//     const result = await mammoth.convertToHtml({ path: docxFilePath });
+//     const htmlContent = result.value;
+//     const $ = cheerio.load(htmlContent);
+//     const textResult = await mammoth.extractRawText({ path: docxFilePath });
+//     const textContent = textResult.value;
+
+//     // Split the text into sections based on a delimiter, e.g., paragraph separation.
+//     // Assuming paragraphs are separated by double line breaks.
+//     const textSections = textContent.split('\n\n');
+
+//     // Get all images in the order they appear in the HTML
+//     const images = [];
+//     $('img').each(function (i, element) {
+//       const base64Data = $(this).attr('src').replace(/^data:image\/\w+;base64,/, '');
+//       const imageBuffer = Buffer.from(base64Data, 'base64');
+//       images.push(imageBuffer);
+//     });
+
+
+//     // Create a variable to keep track of the current question id
+//     let j = 0; var Question_id;
+//     for (let i = 0; i < images.length; i++) {
+//       if (j == 0) {
+//         const questionRecord = {
+//           "question_img": images[i],
+//           "test_paper_id": req.body.test_id,
+//           "subi_id": req.body.subi_id
+//         };
+//         console.log(j)
+//         Question_id = await insertRecord('questions', questionRecord);
+//         j++;
+//       }
+//       else if (j > 0 && j < 5) {
+//         const optionRecord = {
+//           "option_img": images[i],
+//           "question_id": Question_id
+//         };
+//         console.log(j)
+//         await insertRecord('options', optionRecord);
+//         j++;
+//       }
+//       else if (j == 5) {
+//         const solutionRecord = {
+//           "solution_img": images[i],
+//           "question_id": Question_id
+//         };
+//         console.log(j)
+//         await insertRecord('solution', solutionRecord);
+//         j = 0;
+//       }
+//       //  console.log(j)
+//     }
+//     // async function insertAnswer(table, record) {
+//     //   return new Promise((resolve, reject) => {
+//     //     const insertQuery = `INSERT INTO ${table} SET ?`;
+//     //     connection.query(insertQuery, record, (err, result) => {
+//     //       if (err) {
+//     //         console.error('Error inserting answer data: ' + err);
+//     //         reject(err);
+//     //       } else {
+//     //         console.log(`Answer id: ${result.insertId}`);
+//     //         resolve(result.insertId);
+//     //       }
+//     //     });
+//     //   });
+//     // }  
+//     // // Inside your route handler:
+//     async function insertAnswer(table, record) {
+//       return new Promise((resolve, reject) => {
+//         const insertQuery = `INSERT INTO ${table} (answer_img, question_id) VALUES (?, ?)`;
+//         connection.query(insertQuery, [record.answer_img, record.question_id], (err, result) => {
+//           if (err) {
+//             console.error('Error inserting answer data: ' + err);
+//             reject(err);
+//           } else {
+//             console.log(`Answer id: ${result.insertId}`);
+//             resolve(result.insertId);
+//           }
+//         });
+//       });
+//     }
+//  // Inside your route handler:
+// for (let i = 0; i < textSections.length; i++) {
+//   if (textSections[i].trim().startsWith('[ans]')) {
+//     const answerText = textSections[i].trim().replace('[ans]', '');
+//     const answerRecord = {
+//       answer_img: answerText,
+//       question_id: Question_id, // Use the same question_id for answers
+//     };
+//     await insertAnswer('answer', answerRecord);
+//     console.log(`Answer text '${answerText}' inserted successfully into answer table for question id ${Question_id}`);
+//   }
+// }
+
+//     res.send('Text content and images extracted and saved to the database with the selected topic ID successfully.');
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('Error extracting content and saving it to the database.');
+//   }
+
+// });
+// function insertRecord(table, record) {
+//   return new Promise((resolve, reject) => {
+//     const insertQuery = `INSERT INTO ${table} SET ?`;
+//     connection.query(insertQuery, record, (err, result) => {
+//       if (err) {
+//         // console.error('Error inserting data: ' + err);
+//         reject(err);
+//       } else {
+//         console.log(`${table} id: ${result.insertId}`);
+//         resolve(result.insertId);
+//       }
+//     });
+//   });
+// }
 
 
 
@@ -299,114 +425,117 @@ app.post('/upload', upload.single('document'), async (req, res) => {
   // const test_id = req.body.test_id;
 
   if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir);
+    fs.mkdirSync(outputDir);
   }
 
   try {
-      const result = await mammoth.convertToHtml({ path: docxFilePath });
-      const htmlContent = result.value;
-      const $ = cheerio.load(htmlContent);
-      const textResult = await mammoth.extractRawText({ path: docxFilePath });
-      const textContent = textResult.value;
+    const result = await mammoth.convertToHtml({ path: docxFilePath });
+    const htmlContent = result.value;
+    const $ = cheerio.load(htmlContent);
+    const textResult = await mammoth.extractRawText({ path: docxFilePath });
+    const textContent = textResult.value;
 
-      // Split the text into sections based on a delimiter, e.g., paragraph separation.
-      // Assuming paragraphs are separated by double line breaks.
-      const textSections = textContent.split('\n\n');
+    // Split the text into sections based on a delimiter, e.g., paragraph separation.
+    // Assuming paragraphs are separated by double line breaks.
+    const textSections = textContent.split('\n\n');
 
-      // Get all images in the order they appear in the HTML
-      const images = [];
-      $('img').each(function (i, element) {
-          const base64Data = $(this).attr('src').replace(/^data:image\/\w+;base64,/, '');
-          const imageBuffer = Buffer.from(base64Data, 'base64');
-          images.push(imageBuffer);
-      });
-
-
-<<<<<<< HEAD
-        // Create a variable to keep track of the current question id
-        let j = 0; var Question_id;
-        for (let i = 0; i < images.length; i++) {
-         if(j==0){
-            
-          const questionRecord = {
-            "question_img": images[i],
-            "test_paper_id": req.body.test_id,
-            "subi_id":req.body.subi_id,
-        };
-        Question_id = await insertRecord('questions', questionRecord);
-            j++;
-              
-         }
-         if(j>=1 && j<=4){
-          const optionRecord = {
-            "option_img": images[i],
-            "question_id": Question_id
-        };
-        await insertRecord('options', optionRecord);
-            j++;
-         }
-         if(j==5){
-          const solutionRecord = {
-            "solution_img": images[i],
-            "question_id": Question_id
-        };
-        await insertRecord('solution', solutionRecord);
-            j=0;
-=======
-      // Create a variable to keep track of the current question id
-      let j = 0; var Question_id;
-      for (let i = 0; i < images.length; i++) {
-       if(j==0){
-        const questionRecord = {
-          "question_img": images[i],
-          "test_paper_id": req.body.test_id,
-          "subi_id": req.body.subi_id
-      };
-      console.log(j)
-      Question_id = await insertRecord('questions', questionRecord);
-          j++;
-       }
-       else if(j>0 && j<5){
-        const optionRecord = {
-          "option_img": images[i],
-          "question_id": Question_id
-      };
-      console.log(j)
-      await insertRecord('options', optionRecord);
-          j++;
-       }
-      else if(j==5){
-        const solutionRecord = {
-          "solution_img": images[i],
-          "question_id": Question_id
-      };
-      console.log(j)
-      await insertRecord('solution', solutionRecord);
-          j=0;
-       }
-      //  console.log(j)
-      }
-      res.send('Text content and images extracted and saved to the database with the selected topic ID successfully.');
-  } catch (error) {
-      console.error(error);
-      res.status(500).send('Error extracting content and saving it to the database.');
+    // Get all images in the order they appear in the HTML
+    const images = [];
+    $('img').each(function (i, element) {
+      const base64Data = $(this).attr('src').replace(/^data:image\/\w+;base64,/, '');
+      const imageBuffer = Buffer.from(base64Data, 'base64');
+      images.push(imageBuffer);
+    });
+// ...
+// Create a variable to keep track of the current question id
+let j = 0;
+let Question_id = 0; // Initialize the Question_id
+for (let i = 0; i < images.length; i++) {
+  if (j === 0) {
+    Question_id++; // Increment the Question_id for each new question
+    const questionRecord = {
+      "question_img": images[i],
+      "test_paper_id": req.body.test_id,
+      "subi_id": req.body.subi_id
+    };
+    console.log(j);
+    await insertRecord('questions', questionRecord);
+    j++;
+  } else if (j > 0 && j < 5) {
+    const optionRecord = {
+      "option_img": images[i],
+      "question_id": Question_id
+    };
+    console.log(j);
+    await insertRecord('options', optionRecord);
+    j++;
+  } else if (j === 5) {
+    const solutionRecord = {
+      "solution_img": images[i],
+      "question_id": Question_id
+    };
+    console.log(j);
+    await insertRecord('solution', solutionRecord);
+    j = 0;
   }
->>>>>>> a7ac98abfbeb34d1dddfdc48b450393bd76580b3
+  // ...
+}
+
+// Define a function to insert answers
+async function insertAnswer(table, record) {
+  return new Promise((resolve, reject) => {
+    const insertQuery = `INSERT INTO ${table} (answer_img, question_id) VALUES (?, ?)`;
+    connection.query(insertQuery, [record.answer_img, record.question_id], (err, result) => {
+      if (err) {
+        console.error('Error inserting answer data: ' + err);
+        reject(err);
+      } else {
+        console.log(`Answer id: ${result.insertId}`);
+        resolve(result.insertId);
+      }
+    });
+  });
+}
+
+// Inside your route handler:
+let currentQuestionIndex = 1; // Initialize the current question index to 1
+for (let i = 0; i < textSections.length; i++) {
+  if (textSections[i].trim().startsWith('[ans]')) {
+    const answerText = textSections[i].trim().replace('[ans]', '');
+    const answerRecord = {
+      answer_img: answerText,
+      question_id: currentQuestionIndex,
+    };
+    await insertAnswer('answer', answerRecord);
+    console.log(`Answer text '${answerText}' inserted successfully into answer table for question id ${currentQuestionIndex}`);
+    currentQuestionIndex++; // Increment the current question index
+  }
+}
+// ...
+
+
+
+
+    res.send('Text content and images extracted and saved to the database with the selected topic ID successfully.');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error extracting content and saving it to the database.');
+  }
 
 });
 function insertRecord(table, record) {
-return new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     const insertQuery = `INSERT INTO ${table} SET ?`;
     connection.query(insertQuery, record, (err, result) => {
-        if (err) {
-            // console.error('Error inserting data: ' + err);
-            reject(err);
-        } else {
-            console.log(`${table} id: ${result.insertId}`);
-            resolve(result.insertId);
-        }
+      if (err) {
+        // console.error('Error inserting data: ' + err);
+        reject(err);
+      } else {
+        console.log(`${table} id: ${result.insertId}`);
+        resolve(result.insertId);
+      }
     });
-});
+  });
 }
 
 app.get('/questions', (req, res) => {
@@ -415,21 +544,21 @@ app.get('/questions', (req, res) => {
   // Query the database to fetch images for the specified document_id
   const selectImagesSql = 'SELECT question_img FROM questions '; // Change "id" to "document_id"
   connection.query(selectImagesSql, (error, results) => {
-      if (error) {
-          console.error(error);
-          res.status(500).send('Error fetching images from the database.');
-      } else {
-          // Send the images as a JSON response
-          const images = results.map(result => {
-              return {
-                 
-                questions: result.question_img.toString('base64'),
-              };
-          });
-          res.json(images);
-      }
+    if (error) {
+      console.error(error);
+      res.status(500).send('Error fetching images from the database.');
+    } else {
+      // Send the images as a JSON response
+      const images = results.map(result => {
+        return {
+
+          questions: result.question_img.toString('base64'),
+        };
+      });
+      res.json(images);
+    }
   });
 });
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server is running on http://localhost:${port}`);
 });
