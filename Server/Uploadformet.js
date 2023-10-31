@@ -337,7 +337,7 @@ app.post('/upload', upload.single('document'), async (req, res) => {
             j++;
               
          }
-         if(j>0 && j<5){
+         if(j>=1 && j<=4){
           const optionRecord = {
             "option_img": images[i],
             "question_id": Question_id
