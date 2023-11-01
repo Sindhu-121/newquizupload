@@ -403,42 +403,44 @@ return new Promise((resolve, reject) => {
 }
 
 
-app.get("/quiz_all/:subi_id", (req, res) => {
-  const subi_id = req.params.subi_id;
+// app.get("/quiz_all/:subi_id", (req, res) => {
+//   const subi_id = req.params.subi_id;
   
-  const sql = ` SELECT q.question_id,q.question_img,o.option_img,o.option_id FROM questions q,options o WHERE q.question_id=o.question_id AND q.subi_id=?`;
+//   const sql = ` SELECT q.question_id,q.question_img,o.option_img,o.option_id FROM questions q,options o WHERE q.question_id=o.question_id AND q.subi_id=?`;
 
-  connection.query(sql, [subi_id], (err, results) => {
-      if (err) {
-          console.error('Error querying the database: ' + err.message);
-          res.status(500).json({ error: 'Error fetching data' });
-          return;
-      }
+//   connection.query(sql, [subi_id], (err, results) => {
+//       if (err) {
+//           console.error('Error querying the database: ' + err.message);
+//           res.status(500).json({ error: 'Error fetching data' });
+//           return;
+//       }
 
-      const questions = {};
+//       const questions = {};
 
-      results.forEach((row) => {
-          const { question_img,question_id,option_img,option_id } = row;
+//       results.forEach((row) => {
+//           const { question_img,question_id,option_img,option_id } = row;
 
-          if (!questions[question_id]) {
-              questions[question_id] = {
-                question_id,
-                question_img:question_img.toString('base64'),
-                  options: [],
-              };
-          }
+//           if (!questions[question_id]) {
+//               questions[question_id] = {
+//                 question_id,
+//                 question_img:question_img.toString('base64'),
+//                   options: [],
+//               };
+//           }
 
-          const option = {
-              option_id,
-              option_img:option_img.toString('base64'),
-          };
+//           const option = {
+//               option_id,
+//               option_img:option_img.toString('base64'),
+//           };
 
-          questions[question_id].options.push(option);
-      });
+//           questions[question_id].options.push(option);
+//       });
 
-      res.json(Object.values(questions)); // Convert the object to an array of questions.
-  });
-});
+//       res.json(Object.values(questions)); // Convert the object to an array of questions.
+//   });
+// });
+
+
 app.get('/test_paper', (req, res) => {
   // Query to select data from the test table
   const query = 'SELECT test_paper_id,year,paper_name FROM test_paper';
@@ -455,6 +457,51 @@ app.get('/test_paper', (req, res) => {
     res.json(results);
   });
 });
+
+app.get("/quiz_all/:test_paper_id", (req, res) => {
+    const sql = "SELECT q.question_id,q.question_img,es.subi_id,es.subject_name,o.option_img,o.option_id FROM questions q,egquiz_subindex es,options o WHERE `test_paper_id` = ? AND q.subi_id=es.subi_id AND q.question_id=o.question_id;";
+    const test_paper_id = req.params.test_paper_id;
+    db.query(sql, [test_paper_id], (err, results) => {
+      if (err) {
+        console.error('Error querying the database: ' + err.message);
+        res.status(500).json({ error: 'Error fetching Exams_Id' });
+        return;
+      }
+   
+      const subjects = {};
+   
+      results.forEach((row) => {
+        const { subi_id, subject_name, question_id, question_img,option_img } = row;
+   
+        if (!subjects[subject_name]) {
+          subjects[subject_name] = {
+            subi_id,
+            subject_name,
+            questions: [],
+          };
+        }
+   
+        const question = subjects[subject_name].questions.find(q => q.question_id === question_id);
+        if (!question) {
+          subjects[subject_name].questions.push({
+            question_id,
+            question_img:question_img.toString('base64'),
+            option_img: [],
+          });
+        }
+   
+        const option = {
+            option_img:option_img.toString('base64'),
+        };
+   
+        subjects[subject_name].questions.find(q => q.question_id === question_id).option_img.push(option);
+      });
+   
+      res.json(subjects);
+    });
+  });
+
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
