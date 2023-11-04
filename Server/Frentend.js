@@ -1,6 +1,6 @@
 const express = require('express');
-const multer = require('multer');
-const mysql = require('mysql2'); // Use mysql2 instead of mysql
+
+const mysql = require('mysql2'); 
 const cors = require('cors');
 const app = express();
 const port = 4009;
@@ -38,11 +38,11 @@ app.get('/courses', (req, res) => {
       res.json(results);
     });
   });
-
+//fetching exams
   app.get("/exams/:course_id", (req, res) => {
     const course_id = req.params.course_id;
     const sql = "SELECT exam_name FROM 2egquiz_exam WHERE course_id= ?";
-    db.query(sql, [course_id], (err, result) => {
+    connection.query(sql, [course_id], (err, result) => {
       if (err) {
         console.error('Error querying the database: ' + err.message);
         res.status(500).json({ error: 'Error fetching exams' });
@@ -51,11 +51,11 @@ app.get('/courses', (req, res) => {
       res.json(result);
     });
   });
-
+//fetching test_papers
   app.get("/test_paper/:exam_id",(req,res)=>{
   const sql="SELECT year,paper_name FROM test_paper WHERE exam_id= ?";
   const exam_id=req.params.exam_id;
-  db.query(sql, [exam_id] ,(err,result)=>{
+  connection.query(sql, [exam_id] ,(err,result)=>{
     if(err){
       console.error('Error querying the database: ' + err.message);
      res.status(500).json({ error: 'Error fetching subjects' });
@@ -65,10 +65,13 @@ app.get('/courses', (req, res) => {
   })
   });
 
+
+//fetching subjects,questions,options
+
 app.get("/quiz_all/:test_paper_id", (req, res) => {
-    const sql = "SELECT q.question_id,q.question_img,es.subi_id,es.subject_name,o.option_img,o.option_id FROM questions q,egquiz_subindex es,options o WHERE `test_paper_id` = ? AND q.subi_id=es.subi_id AND q.question_id=o.question_id;";
+    const sql = "SELECT q.question_id,q.question_img,es.subi_id,es.subject_name,o.option_img,o.option_id,o.option_index FROM questions q,egquiz_subindex es,options o WHERE `test_paper_id` = ? AND q.subi_id=es.subi_id AND q.question_id=o.question_id;";
     const test_paper_id = req.params.test_paper_id;
-    db.query(sql, [test_paper_id], (err, results) => {
+    connection.query(sql, [test_paper_id], (err, results) => {
       if (err) {
         console.error('Error querying the database: ' + err.message);
         res.status(500).json({ error: 'Error fetching Exams_Id' });
@@ -107,6 +110,47 @@ app.get("/quiz_all/:test_paper_id", (req, res) => {
       res.json(subjects);
     });
   });
+
+
+
+  
+
+// app.get("/quiz_all/:subi_id", (req, res) => {
+//   const subi_id = req.params.subi_id;
+  
+//   const sql = ` SELECT q.question_id,q.question_img,o.option_img,o.option_id FROM questions q,options o WHERE q.question_id=o.question_id AND q.subi_id=?`;
+
+//   connection.query(sql, [subi_id], (err, results) => {
+//       if (err) {
+//           console.error('Error querying the database: ' + err.message);
+//           res.status(500).json({ error: 'Error fetching data' });
+//           return;
+//       }
+
+//       const questions = {};
+
+//       results.forEach((row) => {
+//           const { question_img,question_id,option_img,option_id } = row;
+
+//           if (!questions[question_id]) {
+//               questions[question_id] = {
+//                 question_id,
+//                 question_img:question_img.toString('base64'),
+//                   options: [],
+//               };
+//           }
+
+//           const option = {
+//               option_id,
+//               option_img:option_img.toString('base64'),
+//           };
+
+//           questions[question_id].options.push(option);
+//       });
+
+//       res.json(Object.values(questions)); // Convert the object to an array of questions.
+//   });
+// });
   app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
